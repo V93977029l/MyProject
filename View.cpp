@@ -9,7 +9,7 @@
 View::View(QWidget *parent)
     : QGraphicsView(parent),
     scene(new QGraphicsScene(this)),
-    map(new QGraphicsPixmapItem(QPixmap("images/caochang.png")))
+    map(new QGraphicsPixmapItem(QPixmap("../../images/caochang.png")))
 {
     // 场景初始化
     int width_view = 1280;
@@ -20,6 +20,7 @@ View::View(QWidget *parent)
     setRenderHint(QPainter::Antialiasing);                  // 抗锯齿
 
     // 载入光标
+    setMouseTracking(true);
     scene->addItem(&cursor);
     setCursor(QCursor(Qt::BlankCursor));
 
@@ -28,7 +29,7 @@ View::View(QWidget *parent)
     scene->addItem(map);
 
     // 载入角色
-    player = new Sprite("images/temp.png", this);
+    player = new Sprite("../../images/temp.png", this);
     player->setParentItem(map);
     scene->addItem(player);
 

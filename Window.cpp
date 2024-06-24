@@ -8,7 +8,6 @@ Window::Window(QWidget *parent)
     : QMainWindow{parent}
 {
     // 设置窗口属性
-    setMouseTracking(true);
     setWindowTitle("我是一个游戏");
     setWindowIcon(QIcon("path"));
     layout()->setSizeConstraint(QLayout::SetFixedSize); // 自动适应子窗口的大小

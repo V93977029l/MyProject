@@ -2,7 +2,7 @@
 #include <QPainter>
 
 Cursor::Cursor(QGraphicsItem *parent)
-    : QGraphicsItem(parent), movie_("images/QAQ.gif")
+    : QGraphicsItem(parent), movie_("../../images/QAQ.gif")
 {
     movie_.start();
 }
