@@ -19,6 +19,7 @@ private:
     View *view;
 
     void createMenus();
+    void input_location();
 };
 
 #endif // WINDOW_H
