@@ -2,7 +2,6 @@
 #include <QPainter>
 #include <QIcon>
 #include <QTimer>
-#include <QDebug>
 #include <QKeyEvent>
 #include "Sprite.h"
 
@@ -28,8 +27,11 @@ View::View(QWidget *parent)
     map->setZValue(-0x3ffffff);
     scene->addItem(map);
 
+    // 放置空气墙
+    air_wall();
+
     // 载入角色
-    player = new Sprite("../../images/temp.png", this);
+    player = new Sprite("../../images/temp.png", &obstacles, this);
     player->setParentItem(map);
     scene->addItem(player);
 
@@ -39,17 +41,17 @@ View::View(QWidget *parent)
     // 设置场景
     setScene(scene);
 
-    // 将角色放置在地图中心
+    // 将角色放置在屏幕中心
     player->setPos((width() - player->pixmap().width()) / 2, (height()  - player->pixmap().height())/ 2);
 
     // 游戏计时器循环
     timer = new QTimer(this);
     connect(player, &Sprite::posUpdate, this, &View::mapMove);
     timer->callOnTimeout(this,[=]()
-    {
-        update_local();
-    });
-    timer->start(1000/60);   // 60FPS
+                         {
+                             update_local();
+                         });
+    timer->start(1000/120);   // 60FPS
 }
 
 void View::init(QSize size)
@@ -61,6 +63,13 @@ void View::sizeBy(QSize size)
 {
     resize(size);
     scene->setSceneRect(0, 0, size.width(), size.height());
+}
+
+void View::set_Pos(int x, int y)
+{
+    QPointF temp = QPointF(x, y) - player->pos();
+    mapMove(temp);
+    player->moveBy(temp.x(),temp.y());
 }
 
 void View::mapMove(QPointF delta)
@@ -147,10 +156,39 @@ void View::closeEvent(QCloseEvent *ev)
     clean();
 }
 
+void View::air_wall()
+{
+    QPen pen(Qt::NoPen);
+    QGraphicsRectItem *obstacle_top = new QGraphicsRectItem;
+    obstacle_top->setPen(pen);
+    obstacle_top->setParentItem(map);
+    obstacle_top->setRect(0, -20, map->pixmap().width(), 20);
+    obstacles.append(obstacle_top);
+
+    QGraphicsRectItem *obstacle_bottom = new QGraphicsRectItem;
+    obstacle_bottom->setPen(pen);
+    obstacle_bottom->setParentItem(map);
+    obstacle_bottom->setRect(0, map->pixmap().height(), map->pixmap().width(), 20);
+    obstacles.append(obstacle_bottom);
+
+    QGraphicsRectItem *obstacle_left = new QGraphicsRectItem;
+    obstacle_left->setPen(pen);
+    obstacle_left->setParentItem(map);
+    obstacle_left->setRect(-20, 0, 20, map->pixmap().height());
+    obstacles.append(obstacle_left);
+
+    QGraphicsRectItem *obstacle_right = new QGraphicsRectItem;
+    obstacle_right->setPen(pen);
+    obstacle_right->setParentItem(map);
+    obstacle_right->setRect(map->pixmap().width(), 0, 20, map->pixmap().height());
+    obstacles.append(obstacle_right);
+}
+
 void View::update_local()
 {
     player->advance(0);
     cursor.update_local();
+    scene->update();
     update();
 }
 

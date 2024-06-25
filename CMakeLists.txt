@@ -23,6 +23,7 @@ add_executable(Game
   Sprite.h Sprite.cpp
   Cursor.h Cursor.cpp
   MainMenu.h MainMenu.cpp
+  Input.h Input.cpp
 
 
 
