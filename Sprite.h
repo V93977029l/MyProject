@@ -5,6 +5,8 @@
 #include <QPixmap>
 #include <QVector2D>
 
+static qreal temp_magnify = 3;      // 地图图片的缩放指数
+
 class Sprite : public Entity        // 游戏单位类
 {
     Q_OBJECT
@@ -24,7 +26,7 @@ public:                                         // 单位移动逻辑
 
 private:
     QVector2D velocity;
-    int speed = 5;
+    int speed = 3;
     QList<QGraphicsItem *> *obstacles = nullptr;
     QRectF m_boundingRect;
 

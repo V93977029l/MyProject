@@ -4,11 +4,11 @@
 #include <QTimer>
 #include <QKeyEvent>
 #include "Sprite.h"
+#include <QDebug>
 
 View::View(QWidget *parent)
     : QGraphicsView(parent),
-    scene(new QGraphicsScene(this)),
-    map(new QGraphicsPixmapItem(QPixmap("../../images/caochang.png")))
+    scene(new QGraphicsScene(this))
 {
     // 场景初始化
     int width_view = 1280;
@@ -24,8 +24,15 @@ View::View(QWidget *parent)
     setCursor(QCursor(Qt::BlankCursor));
 
     // 载入地图
+    map = new QGraphicsPixmapItem(QPixmap("../../images/temp_1.jpg"));
     map->setZValue(-0x3ffffff);
+    map->setScale(temp_magnify);
     scene->addItem(map);
+
+    set_wall(150, 240, 187, 244);
+    set_wall(207, 240, 243, 245);
+    set_wall(180, 347, 215, 369);
+    set_wall(262, 346, 293, 369);
 
     // 放置空气墙
     air_wall();
@@ -33,7 +40,16 @@ View::View(QWidget *parent)
     // 载入角色
     player = new Sprite("../../images/temp.png", &obstacles, this);
     player->setParentItem(map);
+    player->setScale(1/temp_magnify);
     scene->addItem(player);
+
+    // 绘制角色阴影
+    QGraphicsEllipseItem *shadow = new QGraphicsEllipseItem(player);
+    shadow->setRect(QRectF(0, 120, 80, 20));
+    shadow->setBrush(QColor(0, 0, 0, 100));                             // 设置半透明黑色阴影
+    shadow->setPen(Qt::NoPen);                                          // 不绘制边框线
+    shadow->setZValue(player->zValue() - 1);                            // 确保阴影在角色对象的下方显示
+    scene->addItem(shadow);
 
     // 设置场景大小
     scene->setSceneRect(0, 0, width_view, height_view);
@@ -42,7 +58,7 @@ View::View(QWidget *parent)
     setScene(scene);
 
     // 将角色放置在屏幕中心
-    player->setPos((width() - player->pixmap().width()) / 2, (height()  - player->pixmap().height())/ 2);
+    player->setPos((width() - player->pixmap().width()) / 2 / temp_magnify, (height()  - player->pixmap().height())/ 2 / temp_magnify);
 
     // 游戏计时器循环
     timer = new QTimer(this);
@@ -75,6 +91,7 @@ void View::set_Pos(int x, int y)
 void View::mapMove(QPointF delta)
 {
     map->moveBy(-delta.x(),-delta.y());
+    emit setPositionLable(map->mapFromScene(mouse_position), mouse_position);
 }
 
 void View::keyPressEvent(QKeyEvent *ev)
@@ -131,8 +148,10 @@ void View::keyReleaseEvent(QKeyEvent *ev)
 
 void View::mouseMoveEvent(QMouseEvent *ev)
 {
-    cursor.update_position(mapToScene(ev->pos()));
+    mouse_position = ev->pos();
+    cursor.update_position(mapToScene(mouse_position));
     QGraphicsView::mouseMoveEvent(ev);
+    emit setPositionLable(map->mapFromScene(mouse_position), mouse_position);
 }
 
 void View::mousePressEvent(QMouseEvent *ev)
@@ -182,6 +201,17 @@ void View::air_wall()
     obstacle_right->setParentItem(map);
     obstacle_right->setRect(map->pixmap().width(), 0, 20, map->pixmap().height());
     obstacles.append(obstacle_right);
+}
+
+void View::set_wall(qreal x1, qreal y1, qreal x2, qreal y2)
+{
+    qreal w = x2 - x1;
+    qreal h = y2 - y1;
+    QGraphicsRectItem *obstacle_top = new QGraphicsRectItem;
+    obstacle_top->setPen(QPen(Qt::NoPen));
+    obstacle_top->setParentItem(map);
+    obstacle_top->setRect(x1, y1, w, h);
+    obstacles.append(obstacle_top);
 }
 
 void View::update_local()

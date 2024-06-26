@@ -5,14 +5,14 @@ Sprite::Sprite(const QString &imagePath, QList<QGraphicsItem *> *obstacles, QObj
     QPixmap pixmap(imagePath);
     setPixmap(pixmap);
     qreal imageSize = pixmap.width();
-    m_boundingRect = QRectF(0, pixmap.height() - imageSize, imageSize, imageSize);
+    m_boundingRect = QRectF(0, (pixmap.height() - imageSize / 4) / temp_magnify, imageSize / temp_magnify, imageSize / 3 / temp_magnify);
 }
 
 void Sprite::advance(int phase)
 {
-    QPointF direction = speed * velocity.normalized().toPointF();  // 计算移动方向
+    QPointF direction = speed * velocity.normalized().toPointF() / temp_magnify;  // 计算移动方向
     QPointF actualMovement = moveSprite(direction);
-    emit posUpdate(actualMovement);
+    emit posUpdate(actualMovement * temp_magnify);
 }
 
 QRectF Sprite::boundingRect() const
@@ -63,28 +63,38 @@ void Sprite::extracted(const QPointF &direction, QRectF &newRect, QPointF &actua
         return;
     }
 
-    QRectF temp = m_boundingRect.translated(pos());
+    QPointF newPosition = pos() + direction; // 计算新的位置
+    QRectF proposedRect = m_boundingRect.translated(newPosition);  // 使用 newPosition 更新 proposedRect
+    actualMovement = direction;  // 默认实际移动等于预期移动
 
     for (const QGraphicsItem *obstacle : *obstacles)
     {
-        if (newRect.intersects(obstacle->boundingRect()))   // 计算与障碍物碰撞前可以移动的最大距离
+        QRectF obstacleRect = obstacle->boundingRect().translated(obstacle->pos());
+        if (obstacleRect.intersects(proposedRect))
         {
-            QPointF obstaclePos = obstacle->pos();
-            QPointF playerPos = pos();
-            qreal dx = direction.x(), dy = direction.y();
+            QRectF overlap = obstacleRect.intersected(proposedRect);
 
-            if (dx > 0)
-                dx = std::max(0.0, obstaclePos.x() - playerPos.x() - temp.width());
-            if (dx < 0)
-                dx = std::min(0.0, obstaclePos.x() + obstacle->boundingRect().width() - playerPos.x());
-            if (dy > 0)
-                dy = std::max(0.0, obstaclePos.y() - playerPos.y() - temp.height());
-            if (dy < 0)
-                dy = std::min(0.0, obstaclePos.y() + obstacle->boundingRect().height() - playerPos.y());
+            if (overlap.width() < overlap.height())
+            {
+                // 水平移动冲突更小，调整水平方向
+                qreal deltaX = (proposedRect.left() < obstacleRect.left()) ?
+                                   obstacleRect.left() - proposedRect.right() :
+                                   obstacleRect.right() - proposedRect.left();
+                actualMovement.setX(deltaX);
+            }
+            else
+            {
+                // 垂直移动冲突更小，调整垂直方向
+                qreal deltaY = (proposedRect.top() < obstacleRect.top()) ?
+                                   obstacleRect.top() - proposedRect.bottom() :
+                                   obstacleRect.bottom() - proposedRect.top();
+                actualMovement.setY(deltaY);
+            }
 
-            actualMovement = QPointF(dx, dy);
-
-            break; // 只处理第一个碰撞障碍物
+            // 只更新受影响的方向，避免重复全面更新
+            proposedRect = m_boundingRect.translated(pos() + actualMovement);
         }
     }
+
+    newRect = proposedRect;  // 设置最终的移动位置
 }

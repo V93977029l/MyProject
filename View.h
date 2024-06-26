@@ -35,13 +35,19 @@ private:
     Sprite *player;                     // 存放玩家单位
     QGraphicsPixmapItem *map;           // 存放地图
     QList<QGraphicsItem *> obstacles;   // 存放障碍物
+
     Cursor cursor;
+    QPoint mouse_position;
 
     QTimer *timer;
 
     void air_wall();
+    void set_wall(qreal x, qreal y, qreal w, qreal h);
     void update_local();                // 将本地数据更新全部封装
     void clean();                       // 用于游戏主界面关闭时的内存清理
+
+signals:
+    void setPositionLable(QPointF pos_1, QPoint pos_2);
 };
 
 #endif // !_View _H_
