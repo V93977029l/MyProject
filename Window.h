@@ -20,6 +20,8 @@ private:
     View *view;                     // 存储中央视图
     QLabel *mousePositionLabel;     // 信息栏分栏
 
+    void init_main_menu();          // 初始化开始菜单
+    void start_game();              // 开始游戏
     void createMenus();             // 创建顶部菜单
     void createStatusBar();         // 创建状态栏
     void input_location();          // 调用弹出的传送对话框

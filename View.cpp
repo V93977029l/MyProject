@@ -61,15 +61,6 @@ View::View(QWidget *parent)
     timer->start(1000/120);   // 60FPS
 }
 
-void View::init(int width_view,int height_view)
-{
-    setFixedSize(width_view, height_view);
-    scene->setSceneRect(0, 0, width_view, height_view);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setRenderHint(QPainter::Antialiasing);                  // 抗锯齿
-}
-
 void View::set_player_pos(int x, int y)
 {
     QPointF temp = QPointF(x, y) - player->pos();
@@ -147,6 +138,15 @@ void View::resizeEvent(QResizeEvent *ev)
 {
     QGraphicsView::resizeEvent(ev);
     fitInView(sceneRect(), Qt::KeepAspectRatio);
+}
+
+void View::init(int width_view,int height_view)
+{
+    setFixedSize(width_view, height_view);
+    scene->setSceneRect(0, 0, width_view, height_view);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setRenderHint(QPainter::Antialiasing);                  // 抗锯齿
 }
 
 void View::air_wall()

@@ -4,6 +4,7 @@
 #include <QStatusBar>
 #include <QVBoxLayout>
 #include "Input.h"
+#include "MainMenu.h"
 
 Window::Window(QWidget *parent)
     : QMainWindow{parent}
@@ -14,10 +15,7 @@ Window::Window(QWidget *parent)
     layout()->setSizeConstraint(QLayout::SetFixedSize); // 自动适应子窗口的大小
     move(50, 50);                                       // 设置窗口弹出的位置
 
-    // 创建游戏视图
-    view = new View(this);
-    setCentralWidget(view);
-    connect(view, &View::setPositionLable, this, &Window::setPositionLable);
+    init_main_menu();
 
     // 可以在这里添加菜单和状态栏等
     createMenus();                  // 初始化菜单栏
@@ -31,6 +29,20 @@ void Window::setPositionLable(QPointF pos_1, QPoint pos_2)
                                     .arg(pos_1.y(), 0, 'f', 0)
                                     .arg(pos_2.x())
                                     .arg(pos_2.y()));
+}
+
+void Window::init_main_menu()
+{
+    main_menu = new MainMenu(this);
+    setCentralWidget(main_menu);
+    connect(main_menu, &MainMenu::start_game, this, &Window::start_game);
+}
+
+void Window::start_game()
+{
+    view = new View(this);
+    setCentralWidget(view);
+    connect(view, &View::setPositionLable, this, &Window::setPositionLable);
 }
 
 void Window::createMenus()

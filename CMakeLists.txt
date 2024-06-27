@@ -24,6 +24,7 @@ add_executable(Game
   Cursor.h Cursor.cpp
   MainMenu.h MainMenu.cpp
   Input.h Input.cpp
+  AnimatedLogo.h AnimatedLogo.cpp
 
 
 

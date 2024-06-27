@@ -10,7 +10,6 @@ class View : public QGraphicsView               // 窗口视图类
     Q_OBJECT
 public:
     explicit View(QWidget *parent = nullptr);
-    void init(int width_view,int height_view);  // 画面初始化
 
     void set_player_pos(int x, int y);
 
@@ -37,6 +36,7 @@ private:
 
     QTimer *timer;                              // 计时器
 
+    void init(int width_view,int height_view);  // 画面初始化
     void air_wall();
     void set_wall(qreal x, qreal y, qreal w, qreal h);
     void update_local();                        // 将本地数据更新全部封装
