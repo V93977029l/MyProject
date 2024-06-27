@@ -8,6 +8,7 @@ class Cursor : public QGraphicsItem
 {
 public:
     Cursor(QGraphicsItem *parent = nullptr);
+
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) override;
 

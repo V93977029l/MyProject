@@ -13,18 +13,16 @@ public:
     explicit Window(QWidget *parent = nullptr);
 
 public slots:
-    void setPositionLable(QPointF pos_1, QPoint pos_2);
-
-protected:
-    void resizeEvent(QResizeEvent *ev) override;
+    void setPositionLable(QPointF pos_1, QPoint pos_2);     // 右下角信息栏
 
 private:
-    MainMenu *main_menu;
-    View *view;
-    QLabel *mousePositionLabel;
+    MainMenu *main_menu;            // 存储顶部菜单栏
+    View *view;                     // 存储中央视图
+    QLabel *mousePositionLabel;     // 信息栏分栏
 
-    void createMenus();
-    void input_location();
+    void createMenus();             // 创建顶部菜单
+    void createStatusBar();         // 创建状态栏
+    void input_location();          // 调用弹出的传送对话框
 };
 
 #endif // WINDOW_H

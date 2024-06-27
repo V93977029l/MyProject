@@ -9,10 +9,10 @@ Window::Window(QWidget *parent)
     : QMainWindow{parent}
 {
     // 设置窗口属性
-    setWindowTitle("我是一个游戏");
-    setWindowIcon(QIcon("path"));
+    setWindowTitle("我是一个游戏");                       // 窗口名字
+    setWindowIcon(QIcon("path"));                       // 窗口图标
     layout()->setSizeConstraint(QLayout::SetFixedSize); // 自动适应子窗口的大小
-    move(50, 50);
+    move(50, 50);                                       // 设置窗口弹出的位置
 
     // 创建游戏视图
     view = new View(this);
@@ -20,7 +20,8 @@ Window::Window(QWidget *parent)
     connect(view, &View::setPositionLable, this, &Window::setPositionLable);
 
     // 可以在这里添加菜单和状态栏等
-    createMenus();
+    createMenus();                  // 初始化菜单栏
+    createStatusBar();              // 初始化状态栏
 }
 
 void Window::setPositionLable(QPointF pos_1, QPoint pos_2)
@@ -32,13 +33,6 @@ void Window::setPositionLable(QPointF pos_1, QPoint pos_2)
                                     .arg(pos_2.y()));
 }
 
-
-void Window::resizeEvent(QResizeEvent *ev)
-{
-    QMainWindow::resizeEvent(ev);
-    view->sizeBy(centralWidget()->size());  // ?
-}
-
 void Window::createMenus()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("菜单(&C)"));
@@ -46,7 +40,10 @@ void Window::createMenus()
 
     QMenu *testMenu = menuBar()->addMenu(tr("调试(&T)"));
     testMenu->addAction(tr("位置传送(&W)"), this, &Window::input_location);
+}
 
+void Window::createStatusBar()
+{
     statusBar()->setStyleSheet("QStatusBar::item {border: none;}");
     mousePositionLabel = new QLabel("世界坐标: 0, 0;屏幕坐标: 0, 0;");
     statusBar()->addPermanentWidget(mousePositionLabel);
@@ -59,7 +56,7 @@ void Window::input_location()
     if (dialog.exec() == QDialog::Accepted) {
         int x = dialog.getX();
         int y = dialog.getY();
-        view->set_Pos(x, y);
+        view->set_player_pos(x, y);
     }
 
     statusBar()->showMessage("传送成功");

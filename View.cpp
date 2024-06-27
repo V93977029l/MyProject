@@ -11,16 +11,11 @@ View::View(QWidget *parent)
     scene(new QGraphicsScene(this))
 {
     // 场景初始化
-    int width_view = 1280;
-    int height_view = 720;
-    setFixedSize(width_view, height_view);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setRenderHint(QPainter::Antialiasing);                  // 抗锯齿
+    init(1280, 720);
 
     // 载入光标
-    setMouseTracking(true);
-    scene->addItem(&cursor);
+    setMouseTracking(true);         // 打开鼠标跟踪
+    scene->addItem(&cursor);        // 为场景加入光标
     setCursor(QCursor(Qt::BlankCursor));
 
     // 载入地图
@@ -29,13 +24,12 @@ View::View(QWidget *parent)
     map->setScale(temp_magnify);
     scene->addItem(map);
 
+    // 放置空气墙
+    air_wall();
     set_wall(150, 240, 187, 244);
     set_wall(207, 240, 243, 245);
     set_wall(180, 347, 215, 369);
     set_wall(262, 346, 293, 369);
-
-    // 放置空气墙
-    air_wall();
 
     // 载入角色
     player = new Sprite("../../images/temp.png", &obstacles, this);
@@ -50,9 +44,6 @@ View::View(QWidget *parent)
     shadow->setPen(Qt::NoPen);                                          // 不绘制边框线
     shadow->setZValue(player->zValue() - 1);                            // 确保阴影在角色对象的下方显示
     scene->addItem(shadow);
-
-    // 设置场景大小
-    scene->setSceneRect(0, 0, width_view, height_view);
 
     // 设置场景
     setScene(scene);
@@ -70,18 +61,16 @@ View::View(QWidget *parent)
     timer->start(1000/120);   // 60FPS
 }
 
-void View::init(QSize size)
+void View::init(int width_view,int height_view)
 {
-    resize(size);
+    setFixedSize(width_view, height_view);
+    scene->setSceneRect(0, 0, width_view, height_view);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setRenderHint(QPainter::Antialiasing);                  // 抗锯齿
 }
 
-void View::sizeBy(QSize size)
-{
-    resize(size);
-    scene->setSceneRect(0, 0, size.width(), size.height());
-}
-
-void View::set_Pos(int x, int y)
+void View::set_player_pos(int x, int y)
 {
     QPointF temp = QPointF(x, y) - player->pos();
     mapMove(temp);
@@ -91,7 +80,7 @@ void View::set_Pos(int x, int y)
 void View::mapMove(QPointF delta)
 {
     map->moveBy(-delta.x(),-delta.y());
-    emit setPositionLable(map->mapFromScene(mouse_position), mouse_position);
+    emit setPositionLable(map->mapFromScene(mouse_position), mouse_position);   // 激活更新状态栏
 }
 
 void View::keyPressEvent(QKeyEvent *ev)
@@ -154,25 +143,10 @@ void View::mouseMoveEvent(QMouseEvent *ev)
     emit setPositionLable(map->mapFromScene(mouse_position), mouse_position);
 }
 
-void View::mousePressEvent(QMouseEvent *ev)
-{
-
-}
-
-void View::mouseReleaseEvent(QMouseEvent *ev)
-{
-
-}
-
 void View::resizeEvent(QResizeEvent *ev)
 {
     QGraphicsView::resizeEvent(ev);
     fitInView(sceneRect(), Qt::KeepAspectRatio);
-}
-
-void View::closeEvent(QCloseEvent *ev)
-{
-    clean();
 }
 
 void View::air_wall()
@@ -181,7 +155,7 @@ void View::air_wall()
     QGraphicsRectItem *obstacle_top = new QGraphicsRectItem;
     obstacle_top->setPen(pen);
     obstacle_top->setParentItem(map);
-    obstacle_top->setRect(0, -20, map->pixmap().width(), 20);
+    obstacle_top->setRect(0, -20, map->pixmap().width(), 20);       // 空气墙的位置和大小
     obstacles.append(obstacle_top);
 
     QGraphicsRectItem *obstacle_bottom = new QGraphicsRectItem;
@@ -220,9 +194,4 @@ void View::update_local()
     cursor.update_local();
     scene->update();
     update();
-}
-
-void View::clean()
-{
-
 }
